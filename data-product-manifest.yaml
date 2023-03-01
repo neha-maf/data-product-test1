@@ -1,57 +1,146 @@
 ---
 version: 0.0.1
 discoveryPort:
-  name: Car prices barcelona
-  description: Test parquet 
+  name: X-Pay Transactions Data
+  description: XPay (aka. MAF Pay) provides Payments APIs, SDKs and Web libraries
+    for online platforms to integrate Payment solutions and conduct business. As
+    a result of this there are transactions that are recorded which explain
+    multiple facets of information about these transactions. This data product
+    provides this transactions data which is normalized and aggregated .
   category: customer
   image: http://google.com
   autofillUserinfo: true
-  tags: []
+  tags:
+    - Fintech
+    - MAFPay
+    - XConnect
   extra: {}
 inputPorts:
-  - alias: car_input_port
-    description: string
+  - alias: XPay_input_port
+    description: This section defines input details for this data product
     tags: []
     extra: {}
     syncType: pull
     type: s3
-    sourceUrn: urn:dv:datasource:18896dde-fbf6-47f0-ab76-fb10ff9a47c4
+    sourceUrn: urn:dv:datasource:68bca832-8f67-48e9-8136-d227ac87d577
     entityId:
-      alias: car_prices
+      alias: xpay_transactions
       createEntity: true
       type: s3-bucket
-      entityPath: "s3a://dp-input-bucket/user_car_prices_barcelona_2022/"
-      entityFilterPatternMatch: "*"
-      sourceSchemaUrn: urn:dv:schema:9d4716d4
-      projectSchemaUrn: urn:dv:schema:9d4716d6
-      fileFormat: parquet
+      entityPath: s3://mafpay-dev/inbound/MAFPay_Transaction_#YYYY-MM-DD#_*
+      incremetal: true
+      fileFormat: csv
       delimiter: ","
       header: true
-      filter: brand = 'BMW'
       processingTimeColumn:
-        - processing_time
+        - created_date
       actualTimeColumn:
-        - processing_time
+        - created_date
       projection:
-        - brand
-        - model
-        - engine
-        - year
-        - location
+        - "*"
 stateManagement:
-  alias: car_prices_barcelona
+  alias: xpay_transactions_sm
   refreshInterval: 00 10 * * *
-  updateStrategy: SCD-2
+  updateStrategy: append
   productStoreState:
-    logicalSchemaUrn: ${urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9}
+    logicalSchema:
+      properties:
+        legal_entity:
+          type: string
+        store_group_name:
+          type: string
+        store_name:
+          type: string
+        transaction_reference:
+          type: string
+        order_reference:
+          type: string
+        created_date:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        processing_type:
+          type: string
+        category:
+          type: string
+        payment_option:
+          type: string
+        auth_code:
+          type: string
+        eci:
+          type: string
+        wallet_indicator:
+          type: string
+        operation:
+          type: string
+        transaction_status:
+          type: string
+        response_code:
+          type: string
+        response_message:
+          type: string
+        acquirer_response_code:
+          type: string
+        third_party_response_code:
+          type: string
+        processor:
+          type: string
+        customer_name:
+          type: string
+        customer_email:
+          type: string
+        card_number:
+          type: string
+        card_brand:
+          type: string
+        card_type:
+          type: string
+        card_issuer:
+          type: string
+        transaction_type:
+          type: string
+        fraud_rule_triggered:
+          type: string
+        fraud_screening_result:
+          type: string
+        three_ds_result:
+          type: string
+        three_ds_eci:
+          type: string
+        three_ds_enrolled:
+          type: string
+        three_ds_version:
+          type: string
+        three_ds_status:
+          type: string
+        points_earned:
+          type: number
+        points_redeemed:
+          type: number
+        redeemed_amount:
+          type: number
+        rewards_transaction_status:
+          type: string
+        language_val:
+          type: string
+        mid:
+          type: string
+        acquirer:
+          type: string
+        sku:
+          type: string
+        shipping_address:
+          type: string
+        billing_address:
+          type: string
+        extra_data:
+          type: string
     retentionVersions: "10"
-  updateStrategyOptions:
-    - entityRef: ${urn:dv:datasource:6d4714c3}:1
-      uniqueKeyColumns:
-        - customer_id
-      changeTrackColumns:
-        - cust_title_desc
-        - cust_birthday
-        - cust_nationality
 transformation:
-  sql: select * from car_prices
+  sql: select * from xpay_transactions
+outputPort:
+  channels:
+    - channelType: JDBC
+      queryType: SQL
