@@ -1,0 +1,54 @@
+---
+version: 0.0.1
+discoveryPort:
+  name: Maf Pay Tx CSV
+  description: Maf pay transation test data - 1
+  category: customer
+  image: http://google.com
+  autofillUserinfo: true
+  tags: []
+  extra: {}
+inputPorts:
+  - alias: s3_maf_pay_tx
+    description: Maf pay transation test data S3 bucket
+    tags: []
+    extra: {}
+    syncType: pull
+    type: s3
+    sourceUrn: urn:dv:datasource:18896dde-fbf6-47f0-ab76-fb10ff9a47c4
+    entityId:
+      alias: maf_pay_tx
+      createEntity: true
+      type: s3-bucket
+      entityPath: "s3a://dp-input-bucket/mpay-tx"
+      entityFilterPatternMatch: "*.csv"
+      incrematalFetchNamePattern: "MAFPay_Transactions_#tansationDate#_*"
+      incremetal: true
+      sourceSchemaUrn: urn:dv:schema:9d4716d4
+      projectSchemaUrn: urn:dv:schema:9d4716d6
+      filter: ""
+      fileFormat: csv
+      delimiter: ","
+      header: true
+      processingTimeColumn:
+        - created_date
+      actualTimeColumn:
+        - created_date
+      projection:
+        - '*'
+        
+stateManagement:
+  alias: maf_pay_tx
+  refreshInterval: 00 10 * * *
+  updateStrategy: append
+  productStoreState:
+    logicalSchemaUrn: urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9
+    retentionVersions: "10"
+  updateStrategyOptions:
+    - entityRef: urn:dv:datasource:6d4714c3
+      uniqueKeyColumns:
+        - nothing
+      changeTrackColumns:
+        - nothing
+transformation:
+  sql: select * from maf_pay
