@@ -1,54 +1,57 @@
 ---
 version: 0.0.1
 discoveryPort:
-  name: Maf Pay Tx CSV
-  description: Maf pay transation test data - 1
+  name: Car prices barcelona
+  description: Test parquet 
   category: customer
   image: http://google.com
   autofillUserinfo: true
   tags: []
   extra: {}
 inputPorts:
-  - alias: s3_maf_pay_tx
-    description: Maf pay transation test data S3 bucket
+  - alias: car_input_port
+    description: string
     tags: []
     extra: {}
     syncType: pull
     type: s3
     sourceUrn: urn:dv:datasource:18896dde-fbf6-47f0-ab76-fb10ff9a47c4
     entityId:
-      alias: maf_pay_tx
+      alias: car_prices
       createEntity: true
       type: s3-bucket
-      entityPath: "s3a://dp-input-bucket/mpay-tx"
-      entityFilterPatternMatch: "*.csv"
-      incrematalFetchNamePattern: "MAFPay_Transactions_#tansationDate#_*"
-      incremetal: true
+      entityPath: "s3a://dp-input-bucket/user_car_prices_barcelona_2022/"
+      entityFilterPatternMatch: "*"
       sourceSchemaUrn: urn:dv:schema:9d4716d4
       projectSchemaUrn: urn:dv:schema:9d4716d6
-      filter: ""
-      fileFormat: csv
+      fileFormat: parquet
       delimiter: ","
       header: true
+      filter: brand = 'BMW'
       processingTimeColumn:
-        - created_date
+        - processing_time
       actualTimeColumn:
-        - created_date
+        - processing_time
       projection:
-        - '*'
-        
+        - brand
+        - model
+        - engine
+        - year
+        - location
 stateManagement:
-  alias: maf_pay_tx
+  alias: car_prices_barcelona
   refreshInterval: 00 10 * * *
-  updateStrategy: append
+  updateStrategy: SCD-2
   productStoreState:
-    logicalSchemaUrn: urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9
+    logicalSchemaUrn: ${urn:dv:schema:263deedb-916b-40f2-9740-6ee02ce9b8b9}
     retentionVersions: "10"
   updateStrategyOptions:
-    - entityRef: urn:dv:datasource:6d4714c3
+    - entityRef: ${urn:dv:datasource:6d4714c3}:1
       uniqueKeyColumns:
-        - nothing
+        - customer_id
       changeTrackColumns:
-        - nothing
+        - cust_title_desc
+        - cust_birthday
+        - cust_nationality
 transformation:
-  sql: select * from maf_pay
+  sql: select * from car_prices
