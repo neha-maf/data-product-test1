@@ -139,7 +139,7 @@ stateManagement:
           type: string
     retentionVersions: "10"
 transformation:
-  sql: select * from xpay_transactions
+  sql: select * from xpay_transactio
 outputPort:
   channels:
     - channelType: JDBC
